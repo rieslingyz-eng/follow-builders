@@ -4,8 +4,6 @@ description: AI builders digest — monitors top AI builders on X and YouTube po
 metadata:
   openclaw:
     requires:
-      env:
-        - SUPADATA_API_KEY
       bins:
         - node
 ---

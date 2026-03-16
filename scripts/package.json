@@ -1,11 +1,11 @@
 {
-  "name": "follow-builders-fetcher",
+  "name": "follow-builders-scripts",
   "version": "1.0.0",
-  "description": "Content fetcher for Follow Builders skill — Supadata for YouTube",
+  "description": "Scripts for Follow Builders skill — feed generation, digest preparation, delivery",
   "type": "module",
   "scripts": {
-    "fetch": "node fetch-content.js",
-    "test": "node --test test-fetch.js"
+    "generate-feed": "node generate-feed.js",
+    "prepare-digest": "node prepare-digest.js"
   },
   "dependencies": {
     "dotenv": "^16.4.0",

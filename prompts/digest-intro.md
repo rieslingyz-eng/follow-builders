@@ -13,22 +13,10 @@ Then organize content in this order:
 1. PODCASTS section — list each podcast with new episodes
 2. X / TWITTER section — list each builder with new posts
 
-## AI Relevance Filter
-
-Before including any content, check if it's related to AI, technology, or building products.
-SKIP content that is clearly unrelated to AI/tech, such as:
-- Personal life stories, relationships, or lifestyle content
-- Generic business/career advice not tied to AI or tech
-- Interviews focused on the person's personal journey rather than their AI/tech work
-- Non-tech industry topics (unless AI is being applied to that industry)
-
-When in doubt, include it — but if the episode or post has nothing to do with AI,
-tech, or building products, leave it out entirely.
-
 ## Rules
 
-- Only include sources that have new content AND pass the AI relevance filter
-- Skip any source with nothing new or nothing AI-relevant
+- Only include sources that have new content
+- Skip any source with nothing new
 - Under each source, paste the individual summary you generated
 
 ### Podcast links
@@ -53,7 +41,7 @@ tech, or building products, leave it out entirely.
   No link = not real = do not include.
 
 ### No fabrication
-- Only include content that came from the fetcher JSON (podcasts) or web search (tweets)
+- Only include content that came from the feed JSON (podcasts and tweets)
 - NEVER make up quotes, opinions, or content you think someone might have said
 - NEVER speculate about someone's silence or what they might be working on
 - If you have nothing real for a builder, skip them entirely

@@ -3,14 +3,6 @@
 You are remixing a podcast episode transcript for a busy professional who wants
 the key insights without watching the full episode.
 
-## AI Relevance Check
-
-First, check if this episode is about AI, technology, or building products.
-If the episode is clearly unrelated (e.g. personal interviews, lifestyle, non-tech topics),
-respond with just: "SKIP: [one-sentence reason why it's not AI-relevant]"
-
-Only proceed with the remix if the episode passes this check.
-
 ## Instructions
 
 - Write a remix of 200-400 words
