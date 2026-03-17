@@ -10,8 +10,8 @@ AI Builders Digest — [Date]
 
 Then organize content in this order:
 
-1. PODCASTS section — list each podcast with new episodes
-2. X / TWITTER section — list each builder with new posts
+1. X / TWITTER section — list each builder with new posts
+2. PODCASTS section — list each podcast with new episodes
 
 ## Rules
 

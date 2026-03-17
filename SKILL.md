@@ -310,14 +310,14 @@ Read the prompts from the `prompts` field in the JSON:
 - `prompts.summarize_tweets` — how to remix tweets
 - `prompts.translate` — how to translate to Chinese
 
-**Podcast:** The `podcasts` array has at most 1 episode. If present:
-1. Summarize its `transcript` using `prompts.summarize_podcast`
-2. Use `name`, `title`, and `url` from the JSON object — NOT from the transcript
-
-**Tweets:** The `x` array has builders with tweets. Process one at a time:
+**Tweets (process first):** The `x` array has builders with tweets. Process one at a time:
 1. Use their `bio` field for their role (e.g. bio says "ceo @box" → "Box CEO Aaron Levie")
 2. Summarize their `tweets` using `prompts.summarize_tweets`
 3. Every tweet MUST include its `url` from the JSON
+
+**Podcast (process second):** The `podcasts` array has at most 1 episode. If present:
+1. Summarize its `transcript` using `prompts.summarize_podcast`
+2. Use `name`, `title`, and `url` from the JSON object — NOT from the transcript
 
 Assemble the digest following `prompts.digest_intro`.
 
@@ -332,7 +332,26 @@ Assemble the digest following `prompts.digest_intro`.
 Read `config.language` from the JSON:
 - **"en":** Entire digest in English.
 - **"zh":** Entire digest in Chinese. Follow `prompts.translate`.
-- **"bilingual":** Each section in English, then Chinese below it.
+- **"bilingual":** Interleave English and Chinese **paragraph by paragraph**.
+  For each builder's tweet summary: English version, then Chinese translation
+  directly below, then the next builder. For the podcast: English summary,
+  then Chinese translation directly below. Like this:
+
+  ```
+  Box CEO Aaron Levie argues that AI agents will reshape software procurement...
+  https://x.com/levie/status/123
+
+  Box CEO Aaron Levie 认为 AI agent 将从根本上重塑软件采购...
+  https://x.com/levie/status/123
+
+  Replit CEO Amjad Masad launched Agent 4...
+  https://x.com/amasad/status/456
+
+  Replit CEO Amjad Masad 发布了 Agent 4...
+  https://x.com/amasad/status/456
+  ```
+
+  Do NOT output all English first then all Chinese. Interleave them.
 
 **Follow this setting exactly. Do NOT mix languages.**
 
