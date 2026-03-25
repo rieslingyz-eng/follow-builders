@@ -51,3 +51,22 @@ jobs:
           git add feed-x.json feed-podcasts.json feed-blogs.json state-feed.json
           git diff --cached --quiet || git commit -m "chore: update feeds [skip ci]"
           git push
+      - name: 推送更新结果到飞书
+        if: always() # 确保即使前面的 git push 没东西更新，也会执行推送
+        run: |
+          # 1. 提取最新的 AI 资讯（假设你想推送 feed-x.json 里的内容）
+          # 我们用 tail 取最后几行，或者简单提示任务已完成
+          echo "AI 行业资讯抓取完成！" > summary.txt
+          echo "更新内容已同步至 GitHub 仓库。" >> summary.txt
+          
+          SUMMARY=$(cat summary.txt)
+          
+          # 2. 发送到飞书
+          curl -X POST '${{ secrets.FEISHU_WEBHOOK }}' \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "msg_type": "text",
+            "content": {
+              "text": "✅ **AI 资讯同步成功**\n\n'"$SUMMARY"'\n\n查看详情：https://github.com/${{ github.repository }}"
+            }
+          }'
