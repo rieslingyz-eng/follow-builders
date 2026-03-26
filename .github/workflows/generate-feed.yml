@@ -38,16 +38,15 @@ jobs:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           SUPADATA_API_KEY: ${{ secrets.SUPADATA_API_KEY }}
         run: |
-          set +e
-          # 运行抓取脚本
+          cd scripts
+          npm install
+          # 运行抓取，即使失败也继续，防止流程卡死
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            cd scripts && node generate-feed.js --${{ inputs.mode }}
+            node generate-feed.js --${{ inputs.mode }} || echo "Scraper failed but continuing..."
           else
-            cd scripts && node generate-feed.js
+            node generate-feed.js || echo "Scraper failed but continuing..."
           fi
-          # 回到根目录并强制宣告成功
           cd ..
-          exit 0
 
       - name: Commit and push feeds
         run: |
@@ -55,53 +54,37 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git diff --cached --quiet || git commit -m "chore: update news feeds"
-          git push
+          git push || echo "No changes to push"
 
-      - name: 推送 AI 资讯详情到飞书
+      - name: 推送内容到飞书
         if: always()
         run: |
-          # 使用 Node 提取更详细的内容（标题 + 描述 + 链接）
           node -e "
             const fs = require('fs');
+            const path = require('path');
+            // 尝试从两个可能的位置寻找文件
+            const filePath = fs.existsSync('scripts/feed-blogs.json') ? 'scripts/feed-blogs.json' : 'feed-blogs.json';
+            
             try {
-              // 优先读取博客类新闻
-              const data = JSON.parse(fs.readFileSync('feed-blogs.json', 'utf8'));
-              const newsList = data.items.slice(0, 3).map(item => {
-                const title = item.title || '无标题';
-                const summary = item.summary || item.description || '暂无详细描述';
-                const link = item.url || '';
-                return [
-                  [{'tag': 'text', 'text': '📌 ' + title + '\n', 'style': ['bold']}],
-                  [{'tag': 'text', 'text': summary + '\n'}],
-                  [{'tag': 'a', 'text': '🔗 查看原文', 'href': link}, {'tag': 'text', 'text': '\n\n'}]
-                ];
-              });
+              const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+              if (!data.items || data.items.length === 0) throw new Error('Empty');
               
-              if (newsList.length === 0) throw new Error('Empty');
-              
-              // 构造飞书富文本
+              const newsList = data.items.slice(0, 3).map(item => [
+                [{'tag': 'text', 'text': '📌 ' + (item.title || 'AI 新动态') + '\n', 'style': ['bold']}],
+                [{'tag': 'text', 'text': (item.summary || item.description || '点击查看详情').substring(0, 100) + '...\n'}],
+                [{'tag': 'a', 'text': '🔗 查看原文', 'href': item.url || ''}, {'tag': 'text', 'text': '\n\n'}]
+              ]).flat();
+
               const payload = {
                 msg_type: 'post',
-                content: {
-                  post: {
-                    zh_cn: {
-                      title: '🚀 今日 AI 周报（精选）',
-                      content: newsList.flat()
-                    }
-                  }
-                }
+                content: { post: { zh_cn: { title: '🚀 今日 AI 精选资讯', content: newsList } } }
               };
               fs.writeFileSync('payload.json', JSON.stringify(payload));
             } catch (e) {
-              // 备选方案：如果 JSON 格式不对，发一条简单提示
               fs.writeFileSync('payload.json', JSON.stringify({
                 msg_type: 'text',
-                content: { text: '✅ 周报已更新至 GitHub，但自动提取详细内容失败，请检查仓库 JSON 文件格式。' }
+                content: { text: '⚠️ 抓取已完成，但未能获取到有效内容。请检查 GitHub Secrets 中的 API Key 是否配置正确。' }
               }));
             }
           "
-          
-          # 发送构造好的内容
-          curl -X POST -H "Content-Type: application/json" \
-          -d @payload.json \
-          ${{ secrets.FEISHU_WEBHOOK }}
+          curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.FEISHU_WEBHOOK }}
