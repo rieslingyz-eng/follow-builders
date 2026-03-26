@@ -38,21 +38,29 @@ jobs:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           SUPADATA_API_KEY: ${{ secrets.SUPADATA_API_KEY }}
         run: |
-          # 即使脚本运行失败（因为 X 的 Key 是假的），也允许继续执行后续步骤
-          set +e 
-          
+          set +e
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             cd scripts && node generate-feed.js --${{ inputs.mode }}
           else
             cd scripts && node generate-feed.js
           fi
-          
-          # 无论上面是否报错，都强制返回成功，让流程走到“推送飞书”
           exit 0
-            cd scripts && node generate-feed.js --${{ inputs.mode }}
-          else
-            cd scripts && node generate-feed.js
-          fi
+
+      - name: Commit and push feeds
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add feed-x.json feed-podcasts.json feed-blogs.json state-feed.json
+          git diff --cached --quiet || git commit -m "chore: update feeds [skip ci]"
+          git push
+
+      - name: 推送更新结果到飞书
+        if: always()
+        run: |
+          # 这一步是把抓取到的内容发给你的飞书机器人
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"✅ AI周报抓取完成！内容已更新至GitHub。\"}}" \
+          ${{ secrets.FEISHU_WEBHOOK }}
 
       - name: Commit and push feeds
         run: |
