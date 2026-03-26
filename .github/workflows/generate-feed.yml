@@ -57,34 +57,51 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: update news feeds"
           git push
 
-      - name: 推送 AI 新闻概要到飞书
+      - name: 推送 AI 资讯详情到飞书
         if: always()
         run: |
-          # 提取抓取到的前 3 条新闻标题（假设脚本生成了 feed-blogs.json）
-          NEWS_SUMMARY=$(node -e "
+          # 使用 Node 提取更详细的内容（标题 + 描述 + 链接）
+          node -e "
+            const fs = require('fs');
             try {
-              const fs = require('fs');
+              // 优先读取博客类新闻
               const data = JSON.parse(fs.readFileSync('feed-blogs.json', 'utf8'));
-              const items = data.items.slice(0, 3).map(i => '• ' + i.title).join('\\n');
-              console.log(items || '暂无新资讯');
-            } catch (e) {
-              console.log('抓取成功，但内容格式正在解析中...');
-            }
-          ")
-
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{
-            \"msg_type\": \"post\",
-            \"content\": {
-              \"post\": {
-                \"zh_cn\": {
-                  \"title\": \"🚀 本次 AI 周报抓取完成\",
-                  \"content\": [
-                    [{\"tag\": \"text\", \"text\": \"最新动态摘要：\n$NEWS_SUMMARY\"}],
-                    [{\"tag\": \"at\", \"user_id\": \"all\"}, {\"tag\": \"text\", \"text\": \" 更多详情请查看 GitHub 仓库。\"}]
-                  ]
+              const newsList = data.items.slice(0, 3).map(item => {
+                const title = item.title || '无标题';
+                const summary = item.summary || item.description || '暂无详细描述';
+                const link = item.url || '';
+                return [
+                  [{'tag': 'text', 'text': '📌 ' + title + '\n', 'style': ['bold']}],
+                  [{'tag': 'text', 'text': summary + '\n'}],
+                  [{'tag': 'a', 'text': '🔗 查看原文', 'href': link}, {'tag': 'text', 'text': '\n\n'}]
+                ];
+              });
+              
+              if (newsList.length === 0) throw new Error('Empty');
+              
+              // 构造飞书富文本
+              const payload = {
+                msg_type: 'post',
+                content: {
+                  post: {
+                    zh_cn: {
+                      title: '🚀 今日 AI 周报（精选）',
+                      content: newsList.flat()
+                    }
+                  }
                 }
-              }
+              };
+              fs.writeFileSync('payload.json', JSON.stringify(payload));
+            } catch (e) {
+              // 备选方案：如果 JSON 格式不对，发一条简单提示
+              fs.writeFileSync('payload.json', JSON.stringify({
+                msg_type: 'text',
+                content: { text: '✅ 周报已更新至 GitHub，但自动提取详细内容失败，请检查仓库 JSON 文件格式。' }
+              }));
             }
-          }" \
+          "
+          
+          # 发送构造好的内容
+          curl -X POST -H "Content-Type: application/json" \
+          -d @payload.json \
           ${{ secrets.FEISHU_WEBHOOK }}
