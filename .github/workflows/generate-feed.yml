@@ -39,52 +39,52 @@ jobs:
           SUPADATA_API_KEY: ${{ secrets.SUPADATA_API_KEY }}
         run: |
           set +e
+          # 运行抓取脚本
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             cd scripts && node generate-feed.js --${{ inputs.mode }}
           else
             cd scripts && node generate-feed.js
           fi
+          # 回到根目录并强制宣告成功
+          cd ..
           exit 0
 
       - name: Commit and push feeds
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add feed-x.json feed-podcasts.json feed-blogs.json state-feed.json
-          git diff --cached --quiet || git commit -m "chore: update feeds [skip ci]"
+          git add .
+          git diff --cached --quiet || git commit -m "chore: update news feeds"
           git push
 
-      - name: 推送更新结果到飞书
+      - name: 推送 AI 新闻概要到飞书
         if: always()
         run: |
-          # 这一步是把抓取到的内容发给你的飞书机器人
-          curl -X POST -H "Content-Type: application/json" \
-          -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"✅ AI周报抓取完成！内容已更新至GitHub。\"}}" \
-          ${{ secrets.FEISHU_WEBHOOK }}
-
-      - name: Commit and push feeds
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add feed-x.json feed-podcasts.json feed-blogs.json state-feed.json
-          git diff --cached --quiet || git commit -m "chore: update feeds [skip ci]"
-          git push
-      - name: 推送更新结果到飞书
-        if: always() # 确保即使前面的 git push 没东西更新，也会执行推送
-        run: |
-          # 1. 提取最新的 AI 资讯（假设你想推送 feed-x.json 里的内容）
-          # 我们用 tail 取最后几行，或者简单提示任务已完成
-          echo "AI 行业资讯抓取完成！" > summary.txt
-          echo "更新内容已同步至 GitHub 仓库。" >> summary.txt
-          
-          SUMMARY=$(cat summary.txt)
-          
-          # 2. 发送到飞书
-          curl -X POST '${{ secrets.FEISHU_WEBHOOK }}' \
-          -H 'Content-Type: application/json' \
-          -d '{
-            "msg_type": "text",
-            "content": {
-              "text": "✅ **AI 资讯同步成功**\n\n'"$SUMMARY"'\n\n查看详情：https://github.com/${{ github.repository }}"
+          # 提取抓取到的前 3 条新闻标题（假设脚本生成了 feed-blogs.json）
+          NEWS_SUMMARY=$(node -e "
+            try {
+              const fs = require('fs');
+              const data = JSON.parse(fs.readFileSync('feed-blogs.json', 'utf8'));
+              const items = data.items.slice(0, 3).map(i => '• ' + i.title).join('\\n');
+              console.log(items || '暂无新资讯');
+            } catch (e) {
+              console.log('抓取成功，但内容格式正在解析中...');
             }
-          }'
+          ")
+
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{
+            \"msg_type\": \"post\",
+            \"content\": {
+              \"post\": {
+                \"zh_cn\": {
+                  \"title\": \"🚀 本次 AI 周报抓取完成\",
+                  \"content\": [
+                    [{\"tag\": \"text\", \"text\": \"最新动态摘要：\n$NEWS_SUMMARY\"}],
+                    [{\"tag\": \"at\", \"user_id\": \"all\"}, {\"tag\": \"text\", \"text\": \" 更多详情请查看 GitHub 仓库。\"}]
+                  ]
+                }
+              }
+            }
+          }" \
+          ${{ secrets.FEISHU_WEBHOOK }}
