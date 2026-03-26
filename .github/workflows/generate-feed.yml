@@ -38,7 +38,17 @@ jobs:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           SUPADATA_API_KEY: ${{ secrets.SUPADATA_API_KEY }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.mode }}" != "all" ]; then
+          # 即使脚本运行失败（因为 X 的 Key 是假的），也允许继续执行后续步骤
+          set +e 
+          
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            cd scripts && node generate-feed.js --${{ inputs.mode }}
+          else
+            cd scripts && node generate-feed.js
+          fi
+          
+          # 无论上面是否报错，都强制返回成功，让流程走到“推送飞书”
+          exit 0
             cd scripts && node generate-feed.js --${{ inputs.mode }}
           else
             cd scripts && node generate-feed.js
