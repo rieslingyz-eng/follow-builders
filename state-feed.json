@@ -1,15 +1,14 @@
 {
   "seenTweets": {},
   "seenVideos": {
-    "g45Alfg7diw": 1774514826105,
     "SUjA25ijcNs": 1775027259790
   },
   "seenArticles": {
-    "https://www.anthropic.com/engineering/claude-code-auto-mode": 1774514828949,
     "https://www.anthropic.com/engineering/infrastructure-noise": 1775113129945,
     "https://www.anthropic.com/engineering/harness-design-long-running-apps": 1775113132404,
     "https://claude.com/blog/claude-builds-visuals": 1775113133039,
     "https://claude.com/blog/how-enterprises-are-building-ai-agents-in-2026": 1775113133599,
-    "https://claude.com/blog/improving-frontend-design-through-skills": 1775113134154
+    "https://claude.com/blog/improving-frontend-design-through-skills": 1775113134154,
+    "https://claude.com/blog/harnessing-claudes-intelligence": 1775199370911
   }
 }
