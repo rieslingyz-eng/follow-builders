@@ -2,11 +2,12 @@
   "seenTweets": {},
   "seenVideos": {},
   "seenArticles": {
-    "https://www.anthropic.com/engineering/managed-agents": 1776410237487,
-    "https://claude.com/blog/claude-managed-agents": 1776410238269,
     "https://www.anthropic.com/engineering/infrastructure-noise": 1776495306738,
     "https://www.anthropic.com/engineering/claude-code-auto-mode": 1776671297164,
     "https://claude.com/blog/preparing-your-security-program-for-ai-accelerated-offense": 1776755982799,
-    "https://claude.com/blog/claude-code-desktop-redesign": 1776928828046
+    "https://claude.com/blog/claude-code-desktop-redesign": 1776928828046,
+    "https://www.anthropic.com/engineering/april-23-postmortem": 1777016798821,
+    "https://claude.com/blog/connectors-for-everyday-life": 1777016799498,
+    "https://claude.com/blog/claude-managed-agents-memory": 1777016800069
   }
 }
