@@ -3,10 +3,15 @@
   "seenVideos": {
     "Yp_u1NpbkJg": 1782463707814,
     "fpAthTtha8c": 1782548721107,
-    "AZrU6y3pUcU": 1782635954955
+    "AZrU6y3pUcU": 1782635954955,
+    "hLUGXO5DSpo": 1782728337256
   },
   "seenArticles": {
     "https://claude.com/blog/claude-for-foundation-models": 1782463709578,
-    "https://claude.com/blog/artifacts-in-claude-code": 1782635959880
+    "https://claude.com/blog/artifacts-in-claude-code": 1782635959880,
+    "https://www.anthropic.com/engineering/how-we-contain-claude": 1782728348890,
+    "https://www.anthropic.com/engineering/april-23-postmortem": 1782728356101,
+    "https://www.anthropic.com/engineering/managed-agents": 1782728362173,
+    "https://claude.com/blog/claude-managed-agents-updates": 1782728362918
   }
 }
