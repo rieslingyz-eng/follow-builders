@@ -1,15 +1,14 @@
 {
   "seenTweets": {},
   "seenVideos": {
-    "Yp_u1NpbkJg": 1782463707814,
     "fpAthTtha8c": 1782548721107,
     "AZrU6y3pUcU": 1782635954955,
     "hLUGXO5DSpo": 1782728337256,
     "YQWXxnkK4dw": 1782981560788,
-    "5Xvbq_zvOQ4": 1783068311370
+    "5Xvbq_zvOQ4": 1783068311370,
+    "Oojrfdl42LI": 1783153214871
   },
   "seenArticles": {
-    "https://claude.com/blog/claude-for-foundation-models": 1782463709578,
     "https://claude.com/blog/artifacts-in-claude-code": 1782635959880,
     "https://www.anthropic.com/engineering/how-we-contain-claude": 1782728348890,
     "https://www.anthropic.com/engineering/april-23-postmortem": 1782728356101,
